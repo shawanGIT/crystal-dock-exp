@@ -171,6 +171,12 @@ class Program : public QObject, public IconBasedDockItem {
   void updateBounceAnimation();
   float getBounceOffset() const;
 
+  // Window thumbnail hover preview: shown kHoverDelayMs after the pointer
+  // settled on this icon, hidden with a grace period when it leaves.
+  static constexpr int kHoverDelayMs = 350;
+  QTimer thumbnailHoverTimer_;
+  WindowThumbnailPopup* thumbnailPopup_ = nullptr;  // parented to the dock panel.
+
   friend class DockPanel;
 };
 
