@@ -152,6 +152,10 @@ class WindowSystem : public QObject {
   static bool hasAutoHideManager();
   static bool hasActivityManager();
 
+  // True on KDE/Plasma sessions where org_kde_plasma_window_management is bound.
+  // Window thumbnails (KWin D-Bus grabs) are only available there.
+  static bool hasKdeWindowManagement() { return kde_window_management_ != nullptr; }
+
   static int numberOfDesktops() {
     if (hasVirtualDesktopManager()) {
       return virtualDesktopManager_.numberOfDesktops();

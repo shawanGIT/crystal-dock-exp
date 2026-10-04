@@ -63,6 +63,10 @@ class KdeWindowManager : public QObject {
   static bool showingDesktop();
   static void setShowingDesktop(bool show);
 
+  // Returns the plasma-window-management internal uuid of a window, used to
+  // address it in KWin's thumbnail D-Bus interfaces. Empty if unknown.
+  QString uuidOfWindow(void* window) const;
+
  private:
 
   // org_kde_plasma_window_management interface.
