@@ -144,6 +144,15 @@ bool KdeWindowManager::showingDesktop_;
   return showingDesktop_;
 }
 
+QString KdeWindowManager::uuidOfWindow(void* window) const {
+  for (const auto& [uuid, w] : uuids_) {
+    if (w == window) {
+      return QString::fromStdString(uuid);
+    }
+  }
+  return QString();
+}
+
 /* static */ void KdeWindowManager::setShowingDesktop(bool show) {
   // This does not work because it would hide Crystal Dock.
   /*

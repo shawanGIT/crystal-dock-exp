@@ -29,8 +29,11 @@
 #include "display/window_system.h"
 
 #include "icon_based_dock_item.h"
+#include "window_thumbnail.h"
 
 namespace crystaldock {
+
+class DockPanel;
 
 struct ProgramTask {
   void* window;
@@ -127,6 +130,14 @@ class Program : public QObject, public IconBasedDockItem {
   void updateDemandsAttention();
 
   void updateMenu();
+
+  // Window thumbnail (hover preview) logic.
+  // Called by DockPanel when the hovered item changes (or the pointer leaves).
+  void onHoverStart();
+  void onHoverEnd();
+  void showThumbnail();
+  // The task to preview: the active window if any, otherwise the first one.
+  void* thumbnailWindow() const;
 
   void cycleThroughTasks(bool forward);
 
