@@ -22,6 +22,13 @@ endif()
 find_package(Wayland 1.22 REQUIRED COMPONENTS Client)
 find_package(LayerShellQt 6.0 REQUIRED)
 
+# KF6 WindowSystem is used by the window-thumbnail hover preview
+# (view/window_thumbnail.cc): KWindowSystem::isPlatformWayland() for session
+# detection and KWindowInfo for window metadata. The pixel grab itself goes
+# through KWin's D-Bus thumbnailer, because Wayland clients cannot access
+# other clients' buffers directly.
+find_package(KF6 REQUIRED COMPONENTS WindowSystem)
+
 set(SRCS
     desktop/desktop_env.cc
     desktop/budgie_desktop_env.cc
@@ -67,6 +74,7 @@ set(SRCS
     view/separator.cc
     view/trash.cc
     view/version_checker.cc
+    view/window_thumbnail.cc
     view/volume_control.cc
     view/task_manager_settings_dialog.cc
     view/wallpaper_settings_dialog.cc
@@ -118,6 +126,7 @@ set(SRCS
     view/separator.h
     view/trash.h
     view/version_checker.h
+    view/window_thumbnail.h
     view/volume_control.h
     view/task_manager_settings_dialog.h
     view/wallpaper_settings_dialog.h
@@ -140,7 +149,7 @@ set(SRCS
     view/wifi_connection_dialog.ui)
 add_library(crystal-dock_lib STATIC ${SRCS})
 
-set(LIBS Qt6::DBus Qt6::GuiPrivate Qt6::Widgets Wayland::Client LayerShellQt::Interface)
+set(LIBS Qt6::DBus Qt6::GuiPrivate Qt6::Widgets Wayland::Client LayerShellQt::Interface KF6::WindowSystem)
 target_link_libraries(crystal-dock_lib ${LIBS})
 
 add_executable(crystal-dock main.cc)

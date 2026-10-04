@@ -908,6 +908,14 @@ void DockPanel::leaveEvent(QEvent* e) {
   isLeaving_ = true;
   updateLayout();
   activeItem_ = -1;
+
+  // Hide any window-thumbnail preview when the pointer leaves the dock.
+  for (const auto& item : items_) {
+    Program* program = dynamic_cast<Program*>(item.get());
+    if (program != nullptr) {
+      program->onHoverEnd();
+    }
+  }
 }
 
 void DockPanel::dragEnterEvent(QDragEnterEvent* e) {
@@ -1923,6 +1931,7 @@ void DockPanel::setAutoHide(bool on) {
 }
 
 void DockPanel::updateActiveItem(int x, int y) {
+  const int prevActiveItem = activeItem_;
   int i = 0;
   while (i < itemCount() &&
       ((orientation_ == Qt::Horizontal && items_[i]->left_ < x) ||
@@ -1930,6 +1939,20 @@ void DockPanel::updateActiveItem(int x, int y) {
     ++i;
   }
   activeItem_ = i - 1;
+
+  // Drive the window-thumbnail hover previews of program icons.
+  if (activeItem_ != prevActiveItem) {
+    Program* prev = (prevActiveItem >= 0 && prevActiveItem < itemCount())
+        ? dynamic_cast<Program*>(items_[prevActiveItem].get()) : nullptr;
+    if (prev != nullptr) {
+      prev->onHoverEnd();
+    }
+    Program* current = (activeItem_ >= 0 && activeItem_ < itemCount())
+        ? dynamic_cast<Program*>(items_[activeItem_].get()) : nullptr;
+    if (current != nullptr) {
+      current->onHoverStart();
+    }
+  }
 }
 
 int DockPanel::parabolic(int x) {

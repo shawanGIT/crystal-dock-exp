@@ -75,6 +75,9 @@ void Program::init() {
   });
   bounceTimer_.setInterval(kBounceIntervalMs);
   connect(&bounceTimer_, &QTimer::timeout, this, &Program::updateBounceAnimation);
+  thumbnailHoverTimer_.setSingleShot(true);
+  thumbnailHoverTimer_.setInterval(kHoverDelayMs);
+  connect(&thumbnailHoverTimer_, &QTimer::timeout, this, &Program::showThumbnail);
   connect(&menu_, &QMenu::aboutToHide, this,
           [this]() {
             parent_->setShowingPopup(false);
@@ -493,6 +496,51 @@ float Program::getBounceOffset() const {
   }
 
   return bounceOffset;
+}
+
+void* Program::thumbnailWindow() const {
+  if (tasks_.empty()) return nullptr;
+  // Preview the focused task of this app if there is one, otherwise the first.
+  const int active = getActiveTask();
+  return tasks_[active >= 0 ? active : 0].window;
+}
+
+void Program::onHoverStart() {
+  if (!WindowThumbnailProvider::self()->available() || tasks_.empty()) return;
+  if (thumbnailPopup_ && thumbnailPopup_->isVisible()) {
+    // Cursor moved from another icon: keep the popup alive while re-showing.
+    thumbnailPopup_->cancelHide();
+  }
+  // Wait kHoverDelayMs before popping up so sweeping across the dock does not
+  // trigger a request to KWin for every icon the pointer touches.
+  thumbnailHoverTimer_.start();
+}
+
+void Program::onHoverEnd() {
+  thumbnailHoverTimer_.stop();
+  if (thumbnailPopup_) {
+    thumbnailPopup_->hideWithDelay();  // Grace period, anti-flicker.
+  }
+}
+
+void Program::showThumbnail() {
+  void* window = thumbnailWindow();
+  if (window == nullptr) return;
+  if (thumbnailPopup_ == nullptr) {
+    thumbnailPopup_ = new WindowThumbnailPopup(parent_);
+  }
+  // Item rect in global coordinates: item offset inside the panel + panel
+  // position on screen.
+  const QPoint panelTopLeft = parent_->geometry().topLeft() - parent_->pos();
+  const QRect itemRect(panelTopLeft + QPoint(left_, top_), QSize(getWidth(), getHeight()));
+  QString title = getLabel();
+  const int active = getActiveTask();
+  if (active >= 0) {
+    title = tasks_[active].name;
+  } else if (!tasks_.empty()) {
+    title = tasks_[0].name;
+  }
+  thumbnailPopup_->showForWindow(window, itemRect, parent_->position(), title);
 }
 
 }  // namespace crystaldock

@@ -30,13 +30,11 @@
 #include <QPen>
 #include <QScreen>
 
-// KF6 WindowSystem (KF6::WindowSystem). Used to detect the platform session
-// and, per requirement, to resolve KWindowInfo metadata for the window being
-// previewed. The actual pixel grab goes through KWin's D-Bus interfaces below,
-// because on Wayland only the compositor may access other clients' buffers
-// (this is the plasma-wayland-protocols / org.kde.KWin workaround;
+// KF6 WindowSystem (KF6::WindowSystem). Used to detect the platform session.
+// The actual pixel grab goes through KWin's D-Bus interfaces below, because on
+// Wayland only the compositor may access other clients' buffers (this is the
+// plasma-wayland-protocols / org.kde.KWin workaround;
 // KWindowSystem::thumbnail() is X11-only and returns null on Wayland).
-#include <KWindowInfo>
 #include <KWindowSystem>
 
 namespace crystaldock {
